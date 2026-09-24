@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #f5f5f5;
+  --accent: #e11d2e; /* red */
+  --accent-dark: #9f0f1d;
+  --bg: #000000;
+  --card: #120303;
+  --border: #3f0a0f;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------------
+   Site-wide dark theme overrides.
+
+   Several pages (dashboard, login, signup, messages, live, admin) were
+   originally styled with light Tailwind utility classes (bg-white,
+   bg-stone-50, text-stone-900, border-stone-200, etc). Rather than hand
+   edit every one, these rules repaint those utility classes to match the
+   black-and-red theme everywhere they're used, so the whole app is
+   visually consistent. Pages that were redesigned directly (home, feed,
+   creator profile) don't rely on this layer.
+   --------------------------------------------------------------------- */
+.bg-stone-50,
+.bg-white {
+  background-color: var(--card) !important;
+}
+
+.bg-stone-100 {
+  background-color: #1a0505 !important;
+}
+
+.text-stone-900,
+.text-stone-800 {
+  color: var(--ink) !important;
+}
+
+.text-stone-700,
+.text-stone-600 {
+  color: #d4b8ba !important;
+}
+
+.text-stone-500,
+.text-stone-400 {
+  color: #a37c7f !important;
+}
+
+.border-stone-200,
+.border-stone-300 {
+  border-color: var(--border) !important;
+}
+
+.hover\:bg-stone-100:hover {
+  background-color: #200707 !important;
+}
+
+/* Keep emerald/red status banners readable on dark cards */
+.bg-emerald-50 {
+  background-color: #062b1c !important;
+}
+.text-emerald-900 {
+  color: #4ade80 !important;
+}
+.border-emerald-300 {
+  border-color: #14532d !important;
+}
+.bg-red-50 {
+  background-color: #2a0508 !important;
+}
+.border-red-300 {
+  border-color: var(--accent) !important;
+}
+.text-red-700 {
+  color: #fca5b1 !important;
+}
+
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+/* The mobile bottom nav is fixed and floats over content. Regular
+   content pages use <main> as their root and get bottom padding so
+   the nav doesn't permanently cover their last few rows; the immersive
+   full-bleed reels pages (home, /feed) use a <div> root instead and are
+   left untouched so they can sit truly full-height behind the nav. */
+@media (max-width: 767px) {
+  body > div > main {
+    padding-bottom: 4.5rem;
+  }
+}
+
+/* Form controls need an explicit foreground color on the dark theme so
+   typed text remains visible across browsers and password fields. */
+input,
+textarea,
+select {
+  color: var(--ink);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #a37c7f;
+  opacity: 1;
+}

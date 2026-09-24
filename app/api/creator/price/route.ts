@@ -1,0 +1,7 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { createPaystackPlan } from "@/lib/paystack";
+export async function POST(req:Request){
+ const session=await getServerSession(authOptions); if(!session?.user) return NextResponse.json({error:"Not authenticated"},{status:401}); const creator=await prisma.creatorProfile.findUnique({where:{userId:(session.user as any).id as string}}); if(!creator) return NextResponse.json({error:"Only creators can change subscription pricing"},{status:403}); const body=await req.json().catch(()=>({})); const kobo=Number(body.monthlyPriceKobo ?? body.monthlyPriceCents); if(!Number.isInteger(kobo)||kobo<1000||kobo>100000000)return NextResponse.json({error:"Monthly price must be between ₦10 and ₦1,000,000."},{status:400}); try{const plan=await createPaystackPlan({name:`@${creator.username} monthly subscription`,amount:kobo,interval:"monthly",currency:"NGN",description:`Monthly subscription to @${creator.username}`}); await prisma.creatorProfile.update({where:{id:creator.id},data:{monthlyPriceCents:kobo,paystackPlanCode:plan.plan_code}}); return NextResponse.json({monthlyPriceKobo:kobo,monthlyPriceCents:kobo,paystackPlanCode:plan.plan_code});}catch(e){console.error(e);return NextResponse.json({error:e instanceof Error?e.message:"Could not create Paystack plan"},{status:502});}}

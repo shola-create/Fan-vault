@@ -1,0 +1,5 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+export async function GET(req:Request){const session=await getServerSession(authOptions);if(!session?.user)return NextResponse.json({error:"Unauthorized"},{status:401});const uid=(session.user as any).id as string;const roomName=new URL(req.url).searchParams.get('roomName');if(!roomName)return NextResponse.json({error:'roomName is required'},{status:400});const room=await prisma.liveRoom.findUnique({where:{roomName},include:{creator:true}});if(!room)return NextResponse.json({error:'Not found'},{status:404});const isCreator=room.creator.userId===uid;const reveals=await prisma.dareReveal.findMany({where:{liveRoomId:room.id,...(isCreator?{}:{fanId:uid})},include:{dare:true,fan:{select:{id:true,name:true,username:true}}},orderBy:{createdAt:'desc'},take:10});return NextResponse.json({reveals:reveals.map(r=>({id:r.id,tier:r.dare.tier,prompt:r.dare.prompt,tokenAmount:r.tokenAmount,fanName:r.fan.name,createdAt:r.createdAt}))});}
